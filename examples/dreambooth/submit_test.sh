@@ -2,8 +2,9 @@
 
 RUN_ID=${1:-"lambda"}
 GPU_ID=${2:-"0"}
-TESTS=${3:-"all"}
+TF32=${3:-"off"}
 NUM_PRED=${4:-"1"}
+TESTS=${5:-"all"}
 
 export MODEL_NAME="CompVis/stable-diffusion-v1-4"
 export CLASS_DATA_DIR="/home/ubuntu/ml/neurips2022/class_data/set1"
@@ -12,6 +13,7 @@ export TOKEN="aabbccddeeffgg"
 export INPUT_DIR="/home/ubuntu/ml/neurips2022/person/${RUN_ID}/input"
 export PRED_DIR="/home/ubuntu/ml/neurips2022/person/${RUN_ID}/output"
 export MODEL_DIR="/home/ubuntu/ml/neurips2022/person/${RUN_ID}/model"
+export USE_TF32=$TF32
 
 mkdir -p $INPUT_DIR
 mkdir -p $PRED_DIR

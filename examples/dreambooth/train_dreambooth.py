@@ -30,7 +30,12 @@ logger = get_logger(__name__)
 
 # The flag below controls whether to allow TF32 on matmul. This flag defaults to False
 # in PyTorch 1.12 and later.
-torch.backends.cuda.matmul.allow_tf32 = True
+if os.environ['USE_TF32'] == "on":
+    torch.backends.cuda.matmul.allow_tf32 = True
+    print("TF32 is on --------------------------------")
+else:
+    torch.backends.cuda.matmul.allow_tf32 = False
+    print("TF32 is off --------------------------------")
 
 def parse_args(input_args=None):
     parser = argparse.ArgumentParser(description="Simple example of a training script.")
