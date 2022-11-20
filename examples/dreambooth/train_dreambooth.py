@@ -5,6 +5,7 @@ import math
 import os
 from pathlib import Path
 from typing import Optional
+import time
 
 import torch
 import torch.nn.functional as F
@@ -22,6 +23,8 @@ from torchvision import transforms
 from tqdm.auto import tqdm
 from transformers import CLIPTextModel, CLIPTokenizer
 
+from helper import create_tests
+from helper import dummy
 
 logger = get_logger(__name__)
 
@@ -199,7 +202,42 @@ def parse_args(input_args=None):
         ),
     )
     parser.add_argument("--local_rank", type=int, default=-1, help="For distributed training: local_rank")
-
+    parser.add_argument(
+        "--pred_path",
+        type=str,
+        default=None,
+        help="Path to save generate images.",
+    )
+    parser.add_argument(
+        "--token",
+        type=str,
+        default="aabbccddeeffgg",
+        help="Special token.",
+    )
+    parser.add_argument(
+        "--tests",
+        type=str,
+        default="all",
+        help="list of test ids. default all uses all the test prompts",
+    )
+    parser.add_argument(
+        "--num_pred_steps",
+        type=int,
+        default=75,
+        help="Number of steps for a prediction.",
+    )
+    parser.add_argument(
+        "--guide",
+        type=float,
+        default=7.5,
+        help="Guide power.",
+    )
+    parser.add_argument(
+        "--num_preds",
+        type=int,
+        default=1,
+        help="Number of predictions for each prompt.",
+    )
     if input_args is not None:
         args = parser.parse_args(input_args)
     else:
@@ -662,7 +700,17 @@ def main(args):
 
         if args.push_to_hub:
             repo.push_to_hub(commit_message="End of training", blocking=False, auto_lfs_prune=True)
-
+            
+        if args.pred_path:
+            pipeline.safety_checker = dummy
+            pipeline = pipeline.to("cuda")
+            Path(args.pred_path).mkdir(parents=True, exist_ok=True)
+            tests = create_tests(args.tests, args.token, args.num_pred_steps, args.guide)
+            for i in range(args.num_preds):
+                for key in tests:
+                    image = pipeline(tests[key][0], num_inference_steps=tests[key][1], guidance_scale=tests[key][2]).images[0]
+                    timestr = time.strftime("%Y%m%d-%H%M%S")
+                    image.save(args.pred_path + "/" + key + "-" + tests[key][3] + "-" + timestr + "-" + ".png")
     accelerator.end_training()
 
 
