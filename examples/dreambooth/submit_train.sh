@@ -4,7 +4,7 @@ RUN_ID=${1:-"lambda"}
 GPU_ID=${2:-"0"}
 TF32=${3:-"off"}
 
-export MODEL_NAME="CompVis/stable-diffusion-v1-4"
+export SD_NAME="CompVis/stable-diffusion-v1-4"
 export CLASS_DATA_DIR="/home/ubuntu/ml/neurips2022/class_data/set1"
 export TOKEN="aabbccddeeffgg"
 
@@ -26,7 +26,7 @@ echo $CLASS_DATA_DIR
 
 
 CUDA_VISIBLE_DEVICES=$GPU_ID python train_dreambooth.py   \
-	--pretrained_model_name_or_path=$MODEL_NAME    \
+	--pretrained_model_name_or_path=$SD_NAME    \
 	--instance_data_dir=$INPUT_DIR   \
 	--train_text_encoder \
 	--output_dir=$MODEL_DIR \
