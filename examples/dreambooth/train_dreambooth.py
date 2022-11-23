@@ -624,6 +624,7 @@ def main(args):
     progress_bar.set_description("Steps")
     global_step = 0
 
+    print("instance_prompt: " + args.instance_prompt)
     for epoch in range(args.num_train_epochs):
         unet.train()
         if args.train_text_encoder:
